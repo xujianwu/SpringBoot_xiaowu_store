@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.stroe.xiaowu.entity.User;
@@ -70,7 +71,7 @@ public class UserController {
 		return rr;
 	}
 	/**
-	 * 用户登录
+	 * 用户账号登录
 	 * @param username
 	 * @param password
 	 * @return
@@ -84,4 +85,55 @@ public class UserController {
 		rr.setData(map);
 		return rr;
 	}  
+	/**
+	 * 手机号登入
+	 * 生成验证码，发送至手机
+	 */
+	@RequestMapping(value="/createCode",method=RequestMethod.GET)
+	public ResponseResult<Void> createCode(@RequestParam String phone){
+		ResponseResult<Void> rr = new ResponseResult<Void>();
+		userService.createCode(phone);
+		rr.setStatus(1);
+		rr.setMessage("生成验证码成功");
+		return rr;
+	} 
+	/**
+	 * 手机号登入
+	 * 判断验证码是否正确
+	 */
+	@RequestMapping(value="/checkCode",method=RequestMethod.GET)
+	public ResponseResult<Map<String,Object>> checkCode(String phone,String code){
+		ResponseResult<Map<String,Object>> rr = new ResponseResult<Map<String,Object>>();
+		Map<String,Object> map = userService.checkCode(phone, code);
+		userService.createCode(phone);
+		rr.setStatus(1);
+		rr.setMessage("验证成功");
+		rr.setData(map);
+		return rr;
+	}
+	/**
+	 * 根据token检查用户登录状态
+	 * 供其他服务调用检查
+	 * @param username
+	 * @param tokenId
+	 * @return
+	 */
+	@RequestMapping(value="/checkLogin",method=RequestMethod.GET)
+	public boolean checkLogin(String username,String tokenId) {
+		return userService.checkLogin(username,tokenId);
+	}
+	/**
+	 * 注销用户
+	 * @param username
+	 * @param tokenId
+	 * @return
+	 */
+	@RequestMapping(value="/cancellLogin",method=RequestMethod.GET)
+	public ResponseResult<Void> cancellLogin(String username,String tokenId){
+		ResponseResult<Void> rr = new ResponseResult<Void>();
+		userService.cancellLogin(username,tokenId);
+		rr.setStatus(1);
+		rr.setMessage("注销用户成功");
+		return rr;
+	}
 }

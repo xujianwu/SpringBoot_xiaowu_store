@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import cn.stroe.xiaowu.entity.Token;
 import cn.stroe.xiaowu.entity.User;
 import cn.stroe.xiaowu.utils.Pagination;
 
@@ -76,4 +77,39 @@ public class UserDao {
 		int t = jdbcTemplate.update(sql,username,tokenId);
 		return t;
 	}
+	/**
+	 * 根据username,token检查用户登录状态
+	 * @param username
+	 * @param tokenId
+	 * @return
+	 */
+	public List<Token> checkLogin(String username, String tokenId) {
+		List<Token> list = new ArrayList<Token>();
+		String sql = "select username,tokenId from token where isActive='1' and now() < failureTime and username = ? and tokenId = ?";
+		list= jdbcTemplate.query(sql, new Object[] {username,tokenId},new BeanPropertyRowMapper(Token.class));
+		return list;
+	}
+	/**
+	 * 根据username,token延长token过期时间
+	 * @param username
+	 * @param tokenId
+	 * @return
+	 */
+	public int extendToken(String username, String tokenId) {
+		String sql = "update token set activeTime = now() and failureTime = date_add(now(),interval 30 minute) where username = ? and tokenId = ?";
+		int t = jdbcTemplate.update(sql,username,tokenId);
+		return t;
+	}
+	/**
+	 * 注销用户，删除token
+	 * @param username
+	 * @param tokenId
+	 * @return
+	 */
+	public int cancellLogin(String username, String tokenId) {
+		String sql = "update token set activeTime = '0' where username = ? and tokenId = ?";
+		int t = jdbcTemplate.update(sql,username,tokenId);
+		return t;
+	}
+	
 }
