@@ -108,7 +108,7 @@ public class UserService {
 	 */
 	private void Message_url(String message, String phone) throws Exception {
 		message = URLEncoder.encode(message, "utf-8");
-		String url = "http://localhost:8080/user?message="+message+"&address="+phone;
+		String url = "短信接口url?"+message+"&address="+phone;
 		HttpPost httpPost = new HttpPost(url);
 		HttpUtil.doGet(url);
 	}
